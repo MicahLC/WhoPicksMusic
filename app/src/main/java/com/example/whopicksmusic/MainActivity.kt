@@ -1,94 +1,86 @@
 package com.example.whopicksmusic
 
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TableLayout
+import android.widget.TableRow
+import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import com.example.whopicksmusic.ui.theme.WhoPicksMusicTheme
+import androidx.core.view.allViews
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), View.OnClickListener {
+
+    lateinit var btnAddMore : Button
+    lateinit var btnChooseNext : Button
+    lateinit var nameTable : TableLayout
+    var rowCount = 1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            WhoPicksMusicTheme {
-                WhoPicksMusicApp()
+        setContentView(R.layout.layout)
+        btnAddMore = findViewById(R.id.addMore)
+        btnAddMore.setOnClickListener {
+            this.addNameRow()
+        }
+        btnChooseNext = findViewById(R.id.chooseNext)
+        btnChooseNext.setOnClickListener {
+            this.chooseNext()
+        }
+
+        nameTable = findViewById(R.id.nameTable)
+        nameTable.setColumnStretchable(0, true)
+        nameTable.setColumnStretchable(1, false)
+
+
+        this.addNameRow()
+    }
+
+    override fun onClick(v: View?) {
+        /*when(v?.id){
+            R.id.addMore ->{
+                // duplicate 2nd row layout in name table?
+                nameTable.ch
+            }
+        }*/
+    }
+
+    fun addNameRow() {
+        val newRow = TableRow(this)
+        val tvTextEdit = EditText(this)
+        val tvButton = Button(this)
+
+        tvTextEdit.setText("Name")
+        tvButton.text = "Delete"
+
+        // val idx = rowCount
+        tvButton.setOnClickListener {
+            // remove this row from table
+            nameTable.removeView(newRow)
+            // nameTable.removeViewAt(idx)
+            rowCount--
+        }
+
+        newRow.addView(tvTextEdit)
+        newRow.addView(tvButton)
+        nameTable.addView(newRow)
+
+        rowCount++
+    }
+
+    fun chooseNext() {
+        var names = ArrayList<String>()
+        for (view in nameTable.allViews){
+            if (view is TableRow){
+                for (v in view.allViews){
+                    if (v is EditText){
+                        names.add(v.text.toString())
+                    }
+                }
             }
         }
-    }
-}
-
-@PreviewScreenSizes
-@Composable
-fun WhoPicksMusicApp() {
-    var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
-
-    NavigationSuiteScaffold(
-        navigationSuiteItems = {
-            AppDestinations.entries.forEach {
-                item(
-                    icon = {
-                        Icon(
-                            it.icon,
-                            contentDescription = it.label
-                        )
-                    },
-                    label = { Text(it.label) },
-                    selected = it == currentDestination,
-                    onClick = { currentDestination = it }
-                )
-            }
-        }
-    ) {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Greeting(
-                name = "Android",
-                modifier = Modifier.padding(innerPadding)
-            )
-        }
-    }
-}
-
-enum class AppDestinations(
-    val label: String,
-    val icon: ImageVector,
-) {
-    HOME("Home", Icons.Default.Home),
-    FAVORITES("Favorites", Icons.Default.Favorite),
-    PROFILE("Profile", Icons.Default.AccountBox),
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    WhoPicksMusicTheme {
-        Greeting("Android")
     }
 }
