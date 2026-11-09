@@ -10,18 +10,26 @@ import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.allViews
+import kotlin.random.Random
 
 class MainActivity : ComponentActivity(), View.OnClickListener {
+
+    lateinit var textChosen : TextView
 
     lateinit var btnAddMore : Button
     lateinit var btnChooseNext : Button
     lateinit var nameTable : TableLayout
-    var rowCount = 1
+    var rowCount = 0
+
+    var availableNames = ArrayList<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.layout)
+
+        textChosen = findViewById(R.id.chosenText)
+
         btnAddMore = findViewById(R.id.addMore)
         btnAddMore.setOnClickListener {
             this.addNameRow()
@@ -35,8 +43,9 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
         nameTable.setColumnStretchable(0, true)
         nameTable.setColumnStretchable(1, false)
 
-
-        this.addNameRow()
+        // start us off with 1 row
+        // TODO: save names and bring them back? also save history of chosen names?
+        addNameRow()
     }
 
     override fun onClick(v: View?) {
@@ -62,6 +71,10 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
             nameTable.removeView(newRow)
             // nameTable.removeViewAt(idx)
             rowCount--
+            if (rowCount == 0) {
+                btnChooseNext.isEnabled = false
+            }
+            resetNameList()
         }
 
         newRow.addView(tvTextEdit)
@@ -69,18 +82,32 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
         nameTable.addView(newRow)
 
         rowCount++
+        btnChooseNext.isEnabled = true
+        resetNameList()
     }
 
     fun chooseNext() {
-        var names = ArrayList<String>()
-        for (view in nameTable.allViews){
-            if (view is TableRow){
-                for (v in view.allViews){
-                    if (v is EditText){
-                        names.add(v.text.toString())
+        if (rowCount == 0) return
+        if (availableNames.isEmpty()) {
+            for (view in nameTable.allViews) {
+                if (view is TableRow) {
+                    for (v in view.allViews) {
+                        if (v is EditText) {
+                            availableNames.add(v.text.toString())
+                        }
                     }
                 }
             }
         }
+        val chosenIdx = Random.nextInt(availableNames.size)
+        val entry = availableNames[chosenIdx]
+        availableNames.removeAt(chosenIdx)
+        textChosen.text = entry
+    }
+
+    fun resetNameList() {
+        availableNames.clear()
+        // set text?
+        textChosen.text = "Click \"Choose...\" to find out!"
     }
 }
