@@ -12,7 +12,7 @@
         android:layout_marginTop="20dp"
         android:layout_weight=".5"
         android:gravity="center"
-        android:text="Whose turn is next?"
+        android:text="Whose turn is it to pick music?"
         android:textAppearance="@style/TextAppearance.AppCompat.Display2" />
 
     <TextView
@@ -21,13 +21,16 @@
         android:layout_height="40dp"
         android:layout_weight="0"
         android:text="Music Picker:"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/chosenText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_weight=".1"
+        android:gravity="center"
         android:text="Click &quot;Choose...&quot; to find out!"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
@@ -38,7 +41,8 @@
         android:layout_gravity="center"
         android:layout_weight=".25"
         android:text="Choose Next Person"
-        android:textAllCaps="false" />
+        android:textAllCaps="false"
+        android:textSize="20sp" />
 
     <ScrollView
         android:layout_width="match_parent"
