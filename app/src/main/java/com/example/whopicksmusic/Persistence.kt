@@ -28,7 +28,7 @@ interface PersonDao {
     suspend fun getAll(): List<Person>
 
     @Query("SELECT * FROM person WHERE id IN (:userIds)")
-    suspend fun loadAllByIds(userIds: IntArray): List<Person>
+    suspend fun loadAllByIds(userIds: Array<Long>): List<Person>
 
     @Query("SELECT * FROM person WHERE group_id = :groupId")
     suspend fun loadByGroupId(groupId: Int): List<Person>
@@ -46,7 +46,7 @@ interface PersonDao {
     suspend fun delete(person: Person) : Int
 }
 
-@Database(entities = [Person::class], version = 1)
+@Database(entities = [Person::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun personDao(): PersonDao
 }

@@ -63,6 +63,7 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
 
         db =
             Room.databaseBuilder<AppDatabase>(applicationContext, "person-database")
+                .fallbackToDestructiveMigration()
                 .setDriver(AndroidSQLiteDriver())
                 .build()
 
@@ -104,9 +105,11 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
             val n = NameOnly("Name")
             person2 = Person(-1, "Name", false, -1)
             scope.launch {
-                val ids = db.personDao().insertAll(person2)
-                Log.d("MICAH","added blank Name to db, ids was $ids")
-                person2.id = ids[0]
+                val pd = db.personDao()
+                val id = pd.insertNewPerson(n)
+                Log.d("MICAH","added blank Name to db, id was $id")
+                var newPersons = pd.loadAllByIds(arrayOf(id))
+                person2 = newPersons[0]
             }
             tvTextEdit.setText(person2.name)
         }
