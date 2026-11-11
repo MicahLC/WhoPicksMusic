@@ -1,5 +1,6 @@
 package com.example.whopicksmusic
 
+import android.R
 import androidx.room3.ColumnInfo
 import androidx.room3.Dao
 import androidx.room3.Database
@@ -17,21 +18,32 @@ data class Person(
     @PrimaryKey(autoGenerate = true) var id: Long,
     @ColumnInfo(name = "name") var name : String,
     @ColumnInfo(name = "hasPicked", defaultValue = "false") var hasPicked : Boolean,
-    @ColumnInfo(name = "group_id", defaultValue = "-1") val groupId : Int
+    @ColumnInfo(name = "group_id", defaultValue = "-1") var groupId : Int
 )
 
+/**
+ * Data class used for creating a new person.
+ */
 data class NameOnly(val name: String)
+
+/**
+ * Data class used for marking someone as picked.
+ */
+data class PersonPicked(
+    val id: Long,
+    val hasPicked: Boolean
+)
 
 @Dao
 interface PersonDao {
     @Query("SELECT * FROM person")
-    suspend fun getAll(): List<Person>
+    suspend fun getAll(): MutableList<Person>
 
     @Query("SELECT * FROM person WHERE id IN (:userIds)")
-    suspend fun loadAllByIds(userIds: Array<Long>): List<Person>
+    suspend fun loadAllByIds(userIds: Array<Long>): MutableList<Person>
 
     @Query("SELECT * FROM person WHERE group_id = :groupId")
-    suspend fun loadByGroupId(groupId: Int): List<Person>
+    suspend fun loadByGroupId(groupId: Int): MutableList<Person>
 
     @Insert(entity = Person::class)
     suspend fun insertNewPerson(nameOnly: NameOnly): Long
@@ -40,7 +52,7 @@ interface PersonDao {
     suspend fun insertAll(vararg persons: Person) : List<Long>
 
     @Update
-    suspend fun updateUsers(vararg persons: Person)
+    suspend fun updateUsers(vararg persons: Person) : Int
 
     @Delete
     suspend fun delete(person: Person) : Int

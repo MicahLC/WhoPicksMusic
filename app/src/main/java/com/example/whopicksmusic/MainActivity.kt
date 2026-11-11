@@ -35,9 +35,8 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
 
     val scope = CoroutineScope(Job() + Dispatchers.Main)
 
-    var availableNames = ArrayList<String>()
-
-    lateinit var personsList : List<Person>
+    lateinit var personsList : MutableList<Person>
+    var chooseablePersons : MutableList<Person> = ArrayList()
 
     val personRowMap = HashMap<TableRow, Person>()
 
@@ -67,18 +66,19 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
                 .setDriver(AndroidSQLiteDriver())
                 .build()
 
-        // start us off with 1 row
-        // TODO: save names and bring them back? also save history of chosen names?
-        // addNameRow()
+        // load people from db
         val personDao = db.personDao()
         val time = measureTimeMillis {
             scope.launch {
                 val persons = personDao.getAll()
+                personsList = persons
+                Log.d("PERSON-DB", "got a list of size ${personsList.size} on app load")
                 for (person in persons) {
                     addNameRow(person)
                 }
-                personsList = persons
-                Log.d("MICAH", "got a list of size ${personsList.size} on app load")
+                chooseablePersons = personsList.toMutableList()
+                chooseablePersons.removeIf { p ->  p.hasPicked }
+                Log.d("PERSON-DB", "there are ${chooseablePersons.size} person(s) left who have not picked")
             }
         }
         textChosen.text = time.toString()
@@ -103,13 +103,14 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
             tvTextEdit.setText(person2.name)
         } else {
             val n = NameOnly("Name")
-            person2 = Person(-1, "Name", false, -1)
+            person2 = Person(-1, n.name, false, -1)
             scope.launch {
                 val pd = db.personDao()
                 val id = pd.insertNewPerson(n)
-                Log.d("MICAH","added blank Name to db, id was $id")
+                Log.d("PERSON-DB","added blank Name to db, id was $id")
                 var newPersons = pd.loadAllByIds(arrayOf(id))
                 person2 = newPersons[0]
+                personsList.add(person2)
             }
             tvTextEdit.setText(person2.name)
         }
@@ -119,7 +120,8 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
             override fun afterTextChanged(s: Editable?) {
                 person2.name = s.toString()
                 scope.launch {
-                    db.personDao().updateUsers(person2)
+                    val count = db.personDao().updateUsers(person2)
+                    Log.d("PERSON-DB", "Tried to update name of id ${person2.id} to ${s}, count was ${count}")
                 }
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -136,8 +138,9 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
             // remove person from database
             scope.launch {
                 val result = db.personDao().delete(person2)
-                Log.d("MICAH", "successfully deleted $result row(s)")
+                Log.d("PERSON-DB", "successfully deleted $result row(s)")
             }
+            personsList.remove(person2)
             rowCount--
             if (rowCount == 0) {
                 btnChooseNext.isEnabled = false
@@ -156,25 +159,22 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
 
     fun chooseNext() {
         if (rowCount == 0) return
-        if (availableNames.isEmpty()) {
-            for (view in nameTable.allViews) {
-                if (view is TableRow) {
-                    for (v in view.allViews) {
-                        if (v is EditText) {
-                            availableNames.add(v.text.toString())
-                        }
-                    }
-                }
-            }
+        if (chooseablePersons.isEmpty()) {
+            chooseablePersons = personsList.toMutableList()
+            chooseablePersons.forEach { p -> p.hasPicked = false }
+            Log.d("PERSON-DB", "At top of order, we have ${chooseablePersons.size} choose-able person(s)")
         }
-        val chosenIdx = Random.nextInt(availableNames.size)
-        val entry = availableNames[chosenIdx]
-        availableNames.removeAt(chosenIdx)
-        textChosen.text = entry
+        val chosenIdx = Random.nextInt(chooseablePersons.size)
+        val entry = chooseablePersons.removeAt(chosenIdx)
+        entry.hasPicked = true
+        textChosen.text = entry.name
+        scope.launch {
+            db.personDao().updateUsers(*(personsList.toTypedArray()))
+        }
     }
 
     fun resetNameList() {
-        availableNames.clear()
+        chooseablePersons.clear()
         // set text?
         textChosen.text = "Click \"Choose...\" to find out!"
     }
