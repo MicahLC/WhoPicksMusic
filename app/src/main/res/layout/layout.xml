@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#ECEDAA"
     android:orientation="vertical">
 
     <TextView
@@ -12,8 +13,9 @@
         android:layout_marginTop="20dp"
         android:layout_weight=".5"
         android:gravity="center"
-        android:text="Whose turn is it to pick music?"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display2" />
+        android:text="Whose turn is it?"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+        android:textColor="@color/dark_blue" />
 
     <TextView
         android:id="@+id/textView3"
@@ -32,7 +34,8 @@
         android:layout_weight=".1"
         android:gravity="center"
         android:text="Click &quot;Choose...&quot; to find out!"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="#467EBF" />
 
     <Button
         android:id="@+id/chooseNext"
@@ -40,8 +43,10 @@
         android:layout_height="40dp"
         android:layout_gravity="center"
         android:layout_weight=".25"
+        android:background="#26C6DA"
         android:text="Choose Next Person"
         android:textAllCaps="false"
+        android:textColor="#512DA8"
         android:textSize="20sp" />
 
     <ScrollView
@@ -67,13 +72,17 @@
                     android:id="@+id/textView6"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Name" />
+                    android:text="Name"
+                    android:textColor="@color/light_blue"
+                    android:textSize="20sp" />
 
                 <Button
                     android:id="@+id/addMore"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Add" />
+                    android:background="@color/light_blue"
+                    android:text="Add"
+                    android:textColor="@color/white" />
             </TableRow>
 
         </TableLayout>

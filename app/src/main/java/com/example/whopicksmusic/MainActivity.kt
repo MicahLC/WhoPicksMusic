@@ -97,6 +97,7 @@ class MainActivity : ComponentActivity(), View.OnClickListener {
         val newRow = TableRow(this)
         val tvTextEdit = EditText(this)
         val tvDeleteButton = Button(this)
+        tvDeleteButton.setBackgroundResource(R.color.red_chili_red)
         var person2 = person
 
         if (person2 != null) {
