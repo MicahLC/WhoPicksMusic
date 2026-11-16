@@ -1,6 +1,5 @@
 package com.example.whopicksmusic
 
-import android.R
 import androidx.room3.ColumnInfo
 import androidx.room3.Dao
 import androidx.room3.Database
@@ -18,7 +17,8 @@ data class Person(
     @PrimaryKey(autoGenerate = true) var id: Long,
     @ColumnInfo(name = "name") var name : String,
     @ColumnInfo(name = "hasPicked", defaultValue = "false") var hasPicked : Boolean,
-    @ColumnInfo(name = "group_id", defaultValue = "-1") var groupId : Int
+    @ColumnInfo(name = "group_id", defaultValue = "-1") var groupId : Int,
+    @ColumnInfo(name = "isSkip", defaultValue = "false") var isSkipped : Boolean
 )
 
 /**
@@ -32,6 +32,11 @@ data class NameOnly(val name: String)
 data class PersonPicked(
     val id: Long,
     val hasPicked: Boolean
+)
+
+data class PersonSkipped(
+    val id: Long,
+    val isSkip: Boolean
 )
 
 @Dao
@@ -58,7 +63,7 @@ interface PersonDao {
     suspend fun delete(person: Person) : Int
 }
 
-@Database(entities = [Person::class], version = 2)
+@Database(entities = [Person::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun personDao(): PersonDao
 }
